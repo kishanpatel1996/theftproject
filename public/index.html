@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Maps Lab</title>
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+      integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+      crossorigin=""
+    ></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="wrapper">
+        <div class="header">Frontend Libraries: Maps Lab</div>
+        <div id="mapid">
+        </div>
+        <div class="footer">
+          <button onclick="onTheftFromAuto()">Show Theft From Auto</button>
+        </div>
+      </div>
+    </div>
+    <script>
+    /* Your lab code can go here, or in an external file you include */
+    const mymap = L.map('mapid').setView([38.9869, -76.9426], 15);
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiZXZhbmRpbWFyIiwiYSI6ImNrOGl1MG1ydzAybHYzZnA4dmpnZm8zeDcifQ.piEThe--C2dKlShdSIdk4g'
+    }).addTo(mymap);
+
+    var popup = L.popup();
+    var tfa = true;
+
+    function onMapClick(e) {
+      popup
+        .setLatLng(e.latlng)
+        .setContent("You clicked the map at " + e.latlng.toString())
+        .openOn(mymap);
+}
+    function onTheftFromAuto() {
+      theft_from_auto.forEach((element) => {
+        if (tfa === false) {
+          var from_auto = L.marker(element).addTo(mymap)
+          tfa === true;
+        }
+        if (tfa === true) {
+          var from_auto = L.marker(element).remove(mymap)
+          tfa === false
+        }
+      });
+    }
+
+    mymap.on('click', onMapClick);
+
+      //FINAL PROJECT CODE STARTS HERE _ TO REPLACE FOODLOCS
+      theft_from_auto = [];
+
+      fetch('https://data.princegeorgescountymd.gov/resource/wb4e-w4nf.json')
+      .then((response) => {
+        console.log(response);
+        return response
+      })
+      .then((data) => data.json())
+      .then((data) => {
+        for(i = 0; i < data.length; i++) {
+          if (data[i].clearance_code_inc_type === 'THEFT FROM AUTO') {
+            theft_from_auto.push([data[i].latitude, data[i].longitude])
+          }
+        }
+        console.log(theft_from_auto)
+      });
+    </script>
+  </body>
+</html>
